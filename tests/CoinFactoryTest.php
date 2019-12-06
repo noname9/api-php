@@ -3,13 +3,13 @@ declare(strict_types=1);
 
 namespace B2Binpay\Tests;
 
-use B2Binpay\Amount;
-use B2Binpay\AmountFactory;
+use B2Binpay\Coin;
+use B2Binpay\CoinFactory;
 use B2Binpay\Currency;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\MockObject\MockObject;
 
-class AmountFactoryTest extends TestCase
+class CoinFactoryTest extends TestCase
 {
     /**
      * @var Currency | MockObject
@@ -28,7 +28,7 @@ class AmountFactoryTest extends TestCase
 
     public function testCreate()
     {
-        $amount = (new AmountFactory($this->currency))->create('1');
-        $this->assertInstanceOf(Amount::class, $amount);
+        $amount = (new CoinFactory($this->currency))->create('1');
+        $this->assertInstanceOf(Coin::class, $amount);
     }
 }

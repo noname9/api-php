@@ -56,7 +56,7 @@ class RequestTest extends TestCase
     {
         $this->mockHandler->append(
             new TransferException(
-                "Error"
+                'Error'
             )
         );
 
@@ -116,7 +116,7 @@ class RequestTest extends TestCase
     {
         $this->mockHandler->append(
             new TransferException(
-                "Error"
+                'Error'
             )
         );
 
@@ -171,7 +171,7 @@ class RequestTest extends TestCase
         $this->request->send($this->getToken(), 'get', '/');
     }
 
-    private function getToken()
+    private function getToken(): string
     {
         return 'mockToken';
     }
@@ -179,7 +179,7 @@ class RequestTest extends TestCase
     /**
      * @return string
      */
-    private function getUrl()
+    private function getUrl(): string
     {
         return 'url';
     }
@@ -187,7 +187,7 @@ class RequestTest extends TestCase
     /**
      * @return string
      */
-    private function getAuthBasic()
+    private function getAuthBasic(): string
     {
         return getenv('AUTH_BASIC');
     }

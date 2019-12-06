@@ -3,15 +3,15 @@ declare(strict_types=1);
 
 namespace B2Binpay\Tests;
 
-use B2Binpay\Amount;
+use B2Binpay\Coin;
 use B2Binpay\Currency;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\MockObject\MockObject;
 
-class AmountTest extends TestCase
+class CoinTest extends TestCase
 {
     /**
-     * @var Amount
+     * @var Coin
      */
     protected $amount;
 
@@ -23,8 +23,6 @@ class AmountTest extends TestCase
     public function setUp()
     {
         $this->currency = $this->createMock(Currency::class);
-        $this->amount = new Amount($this->currency);
-
         $this->currency->method('getPrecision')
             ->willReturn(8);
         $this->currency->method('getMaxPrecision')
@@ -33,23 +31,24 @@ class AmountTest extends TestCase
 
     public function tearDown()
     {
-        $this->amount = null;
         $this->currency = null;
     }
 
     public function testCalcScale()
     {
-        $scale = $this->amount->calcScale('100.1');
+        $amount = new Coin($this->currency, '1', null, 1);
+
+        $scale = $amount->calcScale('100.1');
         $this->assertSame(1, $scale);
 
-        $scale = $this->amount->calcScale('0.003');
+        $scale = $amount->calcScale('0.003');
         $this->assertSame(3, $scale);
 
-        $scale = $this->amount->calcScale('100');
+        $scale = $amount->calcScale('100');
         $this->assertSame(0, $scale);
     }
 
-    public function getValueDataProvider()
+    public function getValueDataProvider(): array
     {
         return [
             [
@@ -83,12 +82,12 @@ class AmountTest extends TestCase
     {
         list($amountSum, $amountPow, $amountIso) = $amount;
 
-        $this->amount->set($amountSum, $amountPow, $amountIso);
+        $amount = new Coin($this->currency, $amountSum, $amountPow, $amountIso);
 
-        $this->assertSame($expect, $this->amount->getValue());
+        $this->assertSame($expect, $amount->getValue());
     }
 
-    public function getPowedDataProvider()
+    public function getPowedDataProvider(): array
     {
         return [
             [
@@ -123,13 +122,13 @@ class AmountTest extends TestCase
         list($amountSum, $amountPow, $amountIso) = $amount;
         list($expectPowed, $expectPrecision) = $expect;
 
-        $this->amount->set($amountSum, $amountPow, $amountIso);
+        $amount = new Coin($this->currency, $amountSum, $amountPow, $amountIso);
 
-        $this->assertSame($expectPowed, $this->amount->getPowed());
-        $this->assertSame($expectPrecision, $this->amount->getPrecision());
+        $this->assertSame($expectPowed, $amount->getPowed());
+        $this->assertSame($expectPrecision, $amount->getPrecision());
     }
 
-    public function convertDataProvider()
+    public function convertDataProvider(): array
     {
         return [
             [
@@ -190,19 +189,18 @@ class AmountTest extends TestCase
      */
     public function testConvert(array $amount, array $rate, int $precision, string $expect)
     {
-        $rateObj = new Amount($this->currency);
-        
+
         list($amountSum, $amountPow, $amountIso) = $amount;
         list($rateSum, $ratePow, $rateIso) = $rate;
 
-        $this->amount->set($amountSum, $amountPow, $amountIso);
-        $rateObj->set($rateSum, $ratePow, $rateIso);
+        $amount = new Coin($this->currency, $amountSum, $amountPow, $amountIso);
+        $rateObj = new Coin($this->currency, $rateSum, $ratePow, $rateIso);
 
-        $result = $this->amount->convert($rateObj, $precision)->getPowed();
+        $result = $amount->convert($rateObj, $precision)->getPowed();
         $this->assertSame($expect, $result);
     }
 
-    public function percentageDataProvider()
+    public function percentageDataProvider(): array
     {
         return [
             [
@@ -239,9 +237,9 @@ class AmountTest extends TestCase
     {
         list($amountSum, $amountPow, $amountIso) = $amount;
 
-        $this->amount->set($amountSum, $amountPow, $amountIso);
+        $amount = new Coin($this->currency, $amountSum, $amountPow, $amountIso);
 
-        $result = $this->amount->percentage($percent)->getPowed();
+        $result = $amount->percentage($percent)->getPowed();
         $this->assertEquals($expect, $result);
     }
 }

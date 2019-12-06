@@ -48,9 +48,7 @@ class Request
             'http_errors' => false
         ];
 
-        $response = $this->execute($method, $url, $request);
-
-        return $response->data;
+        return $this->execute($method, $url, $request)->data;
     }
 
     /**
@@ -71,9 +69,7 @@ class Request
 
         $method = 'get';
 
-        $responseDecode = $this->execute($method, $url, $request);
-
-        return $responseDecode->access_token;
+        return $this->execute($method, $url, $request)->access_token;
     }
 
     /**
@@ -96,7 +92,7 @@ class Request
 
         $status = $response->getStatusCode();
         $body = (string)$response->getBody();
-        $responseDecode = json_decode($body);
+        $responseDecode = json_decode($body, false);
 
         if (empty($responseDecode)) {
             throw new EmptyResponseException($url);

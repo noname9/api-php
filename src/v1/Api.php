@@ -135,7 +135,7 @@ class Api implements ApiInterface
      */
     public function getNewBillUrl(int $iso): string
     {
-        $gateway = ($this->testing) ? self::TEST_NODE : $this->getNode($iso);
+        $gateway = ($this->testing) ? self::TEST_NODE : self::getNode($iso);
         $uri = self::URI_BILLS;
 
         return $gateway . $uri;
@@ -150,7 +150,7 @@ class Api implements ApiInterface
         $gateway = ($this->testing) ? self::GW_TEST : self::GW_PRODUCTION;
         $uri = self::URI_BILLS;
 
-        if (!empty($bill)) {
+        if ($bill !== null) {
             $uri .= '/' . $bill;
         }
 
@@ -176,7 +176,7 @@ class Api implements ApiInterface
     public function getWalletsUrl(int $wallet = null): string
     {
         $uri = self::URI_WALLETS;
-        if (!empty($wallet)) {
+        if ($wallet !== null) {
             $uri .= '/' . $wallet;
         }
 

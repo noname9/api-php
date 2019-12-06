@@ -26,9 +26,9 @@ class Provider
     private $currency;
 
     /**
-     * @var AmountFactory
+     * @var CoinFactory
      */
-    private $amountFactory;
+    private $coinFactory;
 
     /**
      * @param string $authKey
@@ -36,7 +36,7 @@ class Provider
      * @param bool|false $testing
      * @param Client|null $client
      * @param Currency|null $currency
-     * @param AmountFactory|null $amountFactory
+     * @param CoinFactory|null $coinFactory
      * @param ApiInterface|null $api
      */
     public function __construct(
@@ -45,20 +45,20 @@ class Provider
         bool $testing = false,
         Client $client = null,
         Currency $currency = null,
-        AmountFactory $amountFactory = null,
+        CoinFactory $coinFactory = null,
         ApiInterface $api = null
     ) {
         $this->currency = $currency ?? new Currency();
-        $this->amountFactory = $amountFactory ?? new AmountFactory($this->currency);
+        $this->coinFactory = $coinFactory ?? new CoinFactory($this->currency);
 
         $request = ($client) ? new Request($client) : null;
 
         $this->api = $api ?? new Api(
-            $authKey,
-            $authSecret,
-            $request,
-            $testing
-        );
+                $authKey,
+                $authSecret,
+                $request,
+                $testing
+            );
     }
 
     /**
@@ -86,9 +86,7 @@ class Provider
     {
         $url = $this->api->getRatesUrl() . strtolower($currency);
 
-        $response = $this->api->sendRequest('get', $url);
-
-        return $response;
+        return $this->api->sendRequest('get', $url);
     }
 
     /**
@@ -99,9 +97,7 @@ class Provider
     {
         $url = $this->api->getWalletsUrl();
 
-        $response = $this->api->sendRequest('get', $url);
-
-        return $response;
+        return $this->api->sendRequest('get', $url);
     }
 
     /**
@@ -113,9 +109,7 @@ class Provider
     {
         $url = $this->api->getWalletsUrl($wallet);
 
-        $response = $this->api->sendRequest('get', $url);
-
-        return $response;
+        return $this->api->sendRequest('get', $url);
     }
 
     /**
@@ -135,7 +129,7 @@ class Provider
         $isoFrom = $this->currency->getIso($currencyFrom);
         $isoTo = $this->currency->getIso($currencyTo);
 
-        $input = $this->amountFactory->create($sum, $isoFrom);
+        $input = $this->coinFactory->create($sum, $isoFrom);
 
         if ($isoFrom === $isoTo) {
             return $input->getValue();
@@ -147,7 +141,7 @@ class Provider
             $rates,
             function ($carry, $item) use ($isoTo) {
                 if ($item->to->iso === $isoTo) {
-                    $carry = $this->amountFactory->create($item->rate, null, $item->pow);
+                    $carry = $this->coinFactory->create($item->rate, null, $item->pow);
                 }
                 return $carry;
             },
@@ -173,7 +167,7 @@ class Provider
     {
         $iso = $this->currency->getIso($currency);
 
-        $amount = $this->amountFactory->create($sum, $iso);
+        $amount = $this->coinFactory->create($sum, $iso);
 
         return $amount->percentage($percent)->getValue();
     }
@@ -198,7 +192,7 @@ class Provider
         $iso = $this->currency->getIso($currency);
         $url = $this->api->getNewBillUrl($iso);
 
-        $amount = $this->amountFactory->create($sum, $iso);
+        $amount = $this->coinFactory->create($sum, $iso);
 
         $params = [
             'amount' => $amount->getPowed(),
@@ -209,9 +203,7 @@ class Provider
             'callback_url' => $callbackUrl
         ];
 
-        $response = $this->api->sendRequest('post', $url, $params);
-
-        return $response;
+        return $this->api->sendRequest('post', $url, $params);
     }
 
     /**
@@ -223,9 +215,7 @@ class Provider
     {
         $url = $this->api->getBillsUrl($wallet);
 
-        $response = $this->api->sendRequest('get', $url);
-
-        return $response;
+        return $this->api->sendRequest('get', $url);
     }
 
     /**
@@ -237,8 +227,6 @@ class Provider
     {
         $url = $this->api->getBillsUrl($bill);
 
-        $response = $this->api->sendRequest('get', $url);
-
-        return $response;
+        return $this->api->sendRequest('get', $url);
     }
 }

@@ -32,11 +32,6 @@ class CurrencyTest extends TestCase
         $this->currency = null;
     }
 
-    public function testGetMaxPrecision()
-    {
-        $this->assertInternalType('int', $this->currency->getMaxPrecision());
-    }
-
     public function testGetAlpha()
     {
         $this->assertSame($this->currencyAlpha, $this->currency->getAlpha($this->currencyIso));

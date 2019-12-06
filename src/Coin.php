@@ -10,7 +10,7 @@ use Litipk\BigNumbers\Decimal;
  *
  * @package B2Binpay
  */
-class Amount
+class Coin
 {
     /**
      * @var Currency
@@ -29,24 +29,19 @@ class Amount
 
     /**
      * @param Currency $currency
-     */
-    public function __construct(Currency $currency)
-    {
-        $this->currency = $currency;
-    }
-
-    /**
      * @param string $sum
      * @param int|null $pow
      * @param int|null $iso
      */
-    public function set(string $sum, int $pow = null, int $iso = null)
+    public function __construct(Currency $currency, string $sum, int $pow = null, int $iso = null)
     {
+        $this->currency = $currency;
+
         $value = Decimal::fromString($sum);
 
         $this->precision = $iso ? $this->currency->getPrecision($iso) : 0;
 
-        if (empty($pow)) {
+        if ($pow === null) {
             $scale = max($this->calcScale($sum), $this->currency->getMaxPrecision());
             $value = Decimal::fromString($sum, $scale);
         } else {
@@ -91,11 +86,11 @@ class Amount
     }
 
     /**
-     * @param Amount $rate
+     * @param Coin $rate
      * @param int $precision
-     * @return Amount
+     * @return Coin
      */
-    public function convert(Amount $rate, int $precision): Amount
+    public function convert(Coin $rate, int $precision): Coin
     {
         $this->precision = $precision;
 
@@ -108,9 +103,9 @@ class Amount
 
     /**
      * @param int $percent
-     * @return Amount
+     * @return Coin
      */
-    public function percentage(int $percent): Amount
+    public function percentage(int $percent): Coin
     {
         $mul = Decimal::fromInteger($percent)->div(Decimal::fromInteger(100));
 

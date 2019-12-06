@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace B2Binpay\Tests;
 
-use B2Binpay\Amount;
-use B2Binpay\AmountFactory;
+use B2Binpay\Coin;
+use B2Binpay\CoinFactory;
 use B2Binpay\Currency;
 use B2Binpay\Provider;
 use B2Binpay\ApiInterface;
@@ -24,9 +24,9 @@ class ProviderTest extends TestCase
     protected $currency;
 
     /**
-     * @var AmountFactory | MockObject
+     * @var CoinFactory | MockObject
      */
-    protected $amountFactory;
+    protected $coinFactory;
 
     /**
      * @var ApiInterface | MockObject
@@ -36,7 +36,7 @@ class ProviderTest extends TestCase
     public function setUp()
     {
         $this->currency = $this->createMock(Currency::class);
-        $this->amountFactory = $this->createMock(AmountFactory::class);
+        $this->coinFactory = $this->createMock(CoinFactory::class);
         $this->api = $this->createMock(ApiInterface::class);
 
         $this->provider = new Provider(
@@ -45,7 +45,7 @@ class ProviderTest extends TestCase
             true,
             null,
             $this->currency,
-            $this->amountFactory,
+            $this->coinFactory,
             $this->api
         );
     }
@@ -54,7 +54,7 @@ class ProviderTest extends TestCase
     {
         $this->provider = null;
         $this->currency = null;
-        $this->amountFactory = null;
+        $this->coinFactory = null;
         $this->api = null;
     }
 
@@ -141,9 +141,9 @@ class ProviderTest extends TestCase
         $this->currency->method('getIso')
             ->willReturn(1);
 
-        $amountObj = $this->createMock(Amount::class);
+        $amountObj = $this->createMock(Coin::class);
 
-        $this->amountFactory->method('create')
+        $this->coinFactory->method('create')
             ->willReturn($amountObj);
 
         $amountObj->method('getValue')
@@ -176,11 +176,11 @@ class ProviderTest extends TestCase
         $this->currency->method('getIso')
             ->will($this->onConsecutiveCalls($isoFrom, $isoTo));
 
-        $inputAmount = $this->createMock(Amount::class);
-        $rateAmount = $this->createMock(Amount::class);
-        $resultAmount = $this->createMock(Amount::class);
+        $inputAmount = $this->createMock(Coin::class);
+        $rateAmount = $this->createMock(Coin::class);
+        $resultAmount = $this->createMock(Coin::class);
 
-        $this->amountFactory->expects($this->exactly(2))
+        $this->coinFactory->expects($this->exactly(2))
             ->method('create')
             ->withConsecutive(
                 [$this->equalTo($sum), $this->equalTo($isoFrom)],
@@ -214,9 +214,9 @@ class ProviderTest extends TestCase
         $this->currency->method('getIso')
             ->will($this->onConsecutiveCalls(1, 2));
 
-        $amountObj = $this->createMock(Amount::class);
+        $amountObj = $this->createMock(Coin::class);
 
-        $this->amountFactory->method('create')
+        $this->coinFactory->method('create')
             ->willReturn($amountObj);
 
         $this->provider->convertCurrency('1', 'USD', 'BTC', []);
@@ -232,10 +232,10 @@ class ProviderTest extends TestCase
         $this->currency->method('getIso')
             ->willReturn($iso);
 
-        $amountObj = $this->createMock(Amount::class);
-        $resultAmount = $this->createMock(Amount::class);
+        $amountObj = $this->createMock(Coin::class);
+        $resultAmount = $this->createMock(Coin::class);
 
-        $this->amountFactory->expects($this->once())
+        $this->coinFactory->expects($this->once())
             ->method('create')
             ->with(
                 $this->equalTo($sum),
@@ -283,9 +283,9 @@ class ProviderTest extends TestCase
         $this->api->method('getNewBillUrl')
             ->willReturn($url);
 
-        $amountObj = $this->createMock(Amount::class);
+        $amountObj = $this->createMock(Coin::class);
 
-        $this->amountFactory->method('create')
+        $this->coinFactory->method('create')
             ->willReturn($amountObj);
 
         $amountObj->method('getPowed')

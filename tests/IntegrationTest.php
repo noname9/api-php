@@ -93,7 +93,7 @@ class IntegrationTest extends TestCase
         ]);
 
         $responseWallets = '{"data":[{"id":1},{"id":2}]}';
-        $walletsStub = json_decode($responseWallets);
+        $walletsStub = json_decode($responseWallets, false);
 
         $this->mockHandler->append(
             new Response(200, [], $responseToken),
@@ -112,7 +112,7 @@ class IntegrationTest extends TestCase
         ]);
 
         $responseWallet = '{"data":{"id":1}}';
-        $walletStub = json_decode($responseWallet);
+        $walletStub = json_decode($responseWallet, false);
 
         $this->mockHandler->append(
             new Response(200, [], $responseToken),
@@ -151,29 +151,35 @@ class IntegrationTest extends TestCase
                 "to":{"alpha":"LTC","iso":1003},
                 "rate":"1807564",
                 "pow":8
-            }]}'
+            }]}',
+            false
         );
     }
 
-    public function convertCurrencyDataProvider()
+    public function convertCurrencyDataProvider(): array
     {
         return [
             [
                 'amount' => ['1', 'USD', 'USD'],
                 'expect' => '1.00'
-            ], [
+            ],
+            [
                 'amount' => ['2', 'USD', 'XRP'],
                 'expect' => '5.297329'
-            ], [
+            ],
+            [
                 'amount' => ['3', 'USD', 'BTC'],
                 'expect' => '0.00045726'
-            ], [
+            ],
+            [
                 'amount' => ['4', 'USD', 'LTC'],
                 'expect' => '0.07230256'
-            ], [
+            ],
+            [
                 'amount' => ['1', 'USD', 'B2BX'],
                 'expect' => '0.123456789012345678'
-            ], [
+            ],
+            [
                 'amount' => ['0.01', 'USD', 'NEO'],
                 'expect' => '0.001'
             ]
@@ -193,22 +199,26 @@ class IntegrationTest extends TestCase
         $this->assertSame($expect, $amount);
     }
 
-    public function addMarkupDataProvider()
+    public function addMarkupDataProvider(): array
     {
         return [
             [
                 'amount' => ['1.00', 'USD', 10],
                 'expect' => '1.10'
-            ], [
+            ],
+            [
                 'amount' => ['2.10', 'EUR', 20],
                 'expect' => '2.52'
-            ], [
+            ],
+            [
                 'amount' => ['0.0000000000000001', 'B2BX', 35],
                 'expect' => '0.000000000000000135'
-            ], [
+            ],
+            [
                 'amount' => ['0.1', 'NEO', 95],
                 'expect' => '0.195'
-            ], [
+            ],
+            [
                 'amount' => ['0.01', 'NEO', 98],
                 'expect' => '0.020'
             ]
@@ -236,7 +246,7 @@ class IntegrationTest extends TestCase
         ]);
 
         $responseBill = '{"data":{"id":13}}';
-        $billStub = json_decode($responseBill);
+        $billStub = json_decode($responseBill, false);
 
         $this->mockHandler->append(
             new Response(200, [], $responseToken),
@@ -255,7 +265,7 @@ class IntegrationTest extends TestCase
         ]);
 
         $responseBill = '{"data":{"id":13}}';
-        $billStub = json_decode($responseBill);
+        $billStub = json_decode($responseBill, false);
 
         $this->mockHandler->append(
             new Response(200, [], $responseToken),
@@ -274,7 +284,7 @@ class IntegrationTest extends TestCase
         ]);
 
         $responseBills = '{"data":[{"id":1},{"id":13}]}';
-        $billsStub = json_decode($responseBills);
+        $billsStub = json_decode($responseBills, false);
 
         $this->mockHandler->append(
             new Response(200, [], $responseToken),
@@ -288,7 +298,7 @@ class IntegrationTest extends TestCase
     /**
      * @return string
      */
-    private function getAuth()
+    private function getAuth(): string
     {
         return getenv('AUTH');
     }
