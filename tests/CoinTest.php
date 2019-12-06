@@ -57,27 +57,27 @@ class CoinTest extends TestCase
     {
         return [
             [
-                'amount' => ['0.0000001', null, 1000],
+                'amount' => ['0.0000001', 1000, null],
                 'expect' => ['10', 8]
             ],
             [
-                'amount' => ['0.0002', null, 1000],
+                'amount' => ['0.0002', 1000, null],
                 'expect' => ['20000', 8]
             ],
             [
-                'amount' => ['0.0000003000', null, 1000],
+                'amount' => ['0.0000003000', 1000, null],
                 'expect' => ['30', 8]
             ],
             [
-                'amount' => ['0.0000000004', null, 1000],
+                'amount' => ['0.0000000004', 1000, null],
                 'expect' => ['1', 8]
             ],
             [
-                'amount' => ['50', 8, 1000],
+                'amount' => ['50', 1000, 8],
                 'expect' => ['50', 8]
             ],
             [
-                'amount' => ['1', 42, 1000],
+                'amount' => ['1', 1000, 42],
                 'expect' => ['1', 8]
             ]
         ];
@@ -90,13 +90,131 @@ class CoinTest extends TestCase
      */
     public function testGetPowedAndPrecision(array $amount, array $expect)
     {
-        list($amountSum, $amountPow, $amountIso) = $amount;
+        list($amountSum, $amountIso, $amountPow) = $amount;
         list($expectPowed, $expectPrecision) = $expect;
 
         $amount = new Coin($amountSum, $amountIso, $amountPow);
 
         $this->assertSame($expectPowed, $amount->getPowed());
         $this->assertSame($expectPrecision, $amount->getPrecision());
+    }
+
+    public function equalsDataProvider(): array
+    {
+        return [
+            [
+                'amount' => ['0.0000001', 1000, null],
+                'other' => ['0.0000001', 1000, null],
+                'expect' => true
+            ],
+            [
+                'amount' => ['0.0000001', 1000, null],
+                'other' => ['0.0000002', 1000, null],
+                'expect' => false
+            ],
+            [
+                'amount' => ['0.2', 1000, null],
+                'other' => ['0.02', 1000, null],
+                'expect' => false
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider equalsDataProvider
+     * @param array $amount
+     * @param array $other
+     * @param bool $expect
+     */
+    public function testEquals(array $amount, array $other, bool $expect)
+    {
+        list($amountSum, $amountIso, $amountPow) = $amount;
+        list($otherSum, $otherIso, $otherPow) = $other;
+
+        $amount = new Coin($amountSum, $amountIso, $amountPow);
+        $other = new Coin($otherSum, $otherIso, $otherPow);
+
+        $result = $amount->equals($other);
+        $this->assertEquals($expect, $result);
+
+    }
+
+    public function greaterThanDataProvider(): array
+    {
+        return [
+            [
+                'amount' => ['0.0000002', 1000, null],
+                'other' => ['0.0000001', 1000, null],
+                'expect' => true
+            ],
+            [
+                'amount' => ['0.0000001', 1000, null],
+                'other' => ['0.0000002', 1000, null],
+                'expect' => false
+            ],
+            [
+                'amount' => ['1', 1010, null],
+                'other' => ['0.2', 1010, null],
+                'expect' => true
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider greaterThanDataProvider
+     * @param array $amount
+     * @param array $other
+     * @param bool $expect
+     */
+    public function testGreaterThan(array $amount, array $other, bool $expect)
+    {
+        list($amountSum, $amountIso, $amountPow) = $amount;
+        list($otherSum, $otherIso, $otherPow) = $other;
+
+        $amount = new Coin($amountSum, $amountIso, $amountPow);
+        $other = new Coin($otherSum, $otherIso, $otherPow);
+
+        $result = $amount->greaterThan($other);
+        $this->assertEquals($expect, $result);
+    }
+
+    public function lessThanDataProvider(): array
+    {
+        return [
+            [
+                'amount' => ['0.0000002', 1000, null],
+                'other' => ['0.0000001', 1000, null],
+                'expect' => false
+            ],
+            [
+                'amount' => ['0.0000001', 1000, null],
+                'other' => ['0.0000002', 1000, null],
+                'expect' => true
+            ],
+            [
+                'amount' => ['0.2', 1010, null],
+                'other' => ['0.2', 1010, null],
+                'expect' => false
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider lessThanDataProvider
+     * @param array $amount
+     * @param array $other
+     * @param bool $expect
+     */
+    public function testLessThan(array $amount, array $other, bool $expect)
+    {
+        list($amountSum, $amountIso, $amountPow) = $amount;
+        list($otherSum, $otherIso, $otherPow) = $other;
+
+        $amount = new Coin($amountSum, $amountIso, $amountPow);
+        $other = new Coin($otherSum, $otherIso, $otherPow);
+
+        $result = $amount->lessThan($other);
+        $this->assertEquals($expect, $result);
     }
 
     public function convertDataProvider(): array

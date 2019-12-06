@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace B2Binpay;
 
+use B2Binpay\Exception\NotEqualCurrencyException;
 use Litipk\BigNumbers\Decimal;
 
 /**
@@ -36,7 +37,6 @@ class Coin
     {
         $this->iso = $iso;
         $this->precision = Currency::getPrecision($iso);
-
         $value = Decimal::fromString($sum);
 
         if ($pow === null) {
@@ -55,13 +55,7 @@ class Coin
      */
     public function getValue(): string
     {
-        $return = $this->value;
-
-        if (0 !== $this->precision) {
-            $return = $this->value->ceil($this->precision);
-        }
-
-        return (string)$return;
+        return (string)$this->value;
     }
 
     /**
@@ -81,6 +75,14 @@ class Coin
     }
 
     /**
+     * @return Decimal
+     */
+    public function getDecimal(): Decimal
+    {
+        return $this->value;
+    }
+
+    /**
      * @return string
      */
     public function getPowed(): string
@@ -92,14 +94,72 @@ class Coin
     }
 
     /**
+     * @param Coin $other
+     * @return bool
+     */
+    public function equals(Coin $other): bool
+    {
+        if ($this->iso !== $other->getIso()) {
+            throw new NotEqualCurrencyException();
+        }
+
+        return $this->value->comp($other->getDecimal()) === 0;
+    }
+
+    /**
+     * @param Coin $other
+     * @return bool
+     */
+    public function greaterThan(Coin $other): bool
+    {
+        if ($this->iso !== $other->getIso()) {
+            throw new NotEqualCurrencyException();
+        }
+
+        return $this->value->comp($other->getDecimal()) === 1;
+    }
+
+    /**
+     * @param Coin $other
+     * @return bool
+     */
+    public function lessThan(Coin $other): bool
+    {
+        if ($this->iso !== $other->getIso()) {
+            throw new NotEqualCurrencyException();
+        }
+
+        return $this->value->comp($other->getDecimal()) === -1;
+    }
+
+    /**
+     * @param Coin $amount
+     * @return Coin
+     */
+    public function add(Coin $amount): Coin
+    {
+    }
+
+    /**
+     * @param Coin $amount
+     * @return Coin
+     */
+    public function subtract(Coin $amount): Coin
+    {
+    }
+
+    /**
      * @param Rate $rate
      * @param int $iso
      * @return Coin
      */
     public function convert(Rate $rate, int $iso): Coin
     {
-        $mul = $rate->getDecimal();
+        if ($this->iso === $iso) {
+            return new self((string)$this->value, $this->iso);
+        }
 
+        $mul = $rate->getDecimal();
         $amount = (string)$this->value->mul($mul);
 
         return new self($amount, $iso);
@@ -112,7 +172,6 @@ class Coin
     public function percentage(int $percent): Coin
     {
         $mul = Decimal::fromInteger($percent)->div(Decimal::fromInteger(100));
-
         $amount = (string)$this->value->add($this->value->mul($mul));
 
         return new self($amount, $this->iso);
