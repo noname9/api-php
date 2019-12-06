@@ -7,6 +7,7 @@ use B2Binpay\Coin;
 use B2Binpay\CoinFactory;
 use B2Binpay\Provider;
 use B2Binpay\ApiInterface;
+use B2Binpay\Rate;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\MockObject\MockObject;
 
@@ -81,7 +82,7 @@ class ProviderTest extends TestCase
                 $this->equalTo($url . $alpha)
             )
             ->willReturn($response);
-        
+
         $rates = $this->provider->getRates($alpha);
         $this->assertEquals($response, $rates);
     }
@@ -147,8 +148,9 @@ class ProviderTest extends TestCase
         $currencyFrom = 'USD';
         $currencyTo = 'XRP';
         $isoFrom = 840;
-        $rate = '264866406';
-        $precision = 6;
+        $isoTo = 1010;
+        $rateValue = '264866406';
+        $ratePow = 6;
         $result = '1234';
 
         $ratesStub = json_decode('{"data":[{
@@ -158,23 +160,21 @@ class ProviderTest extends TestCase
                 "pow":6
             }]}', false);
 
+        $rate = new Rate($rateValue, $ratePow);
+
         $inputAmount = $this->createMock(Coin::class);
-        $rateAmount = $this->createMock(Coin::class);
         $resultAmount = $this->createMock(Coin::class);
 
-        $this->coinFactory->expects($this->exactly(2))
+        $this->coinFactory->expects($this->once())
             ->method('create')
-            ->withConsecutive(
-                [$this->equalTo($sum), $this->equalTo($isoFrom)],
-                [$this->equalTo($rate), $this->isNull(), $this->equalTo($precision)]
-            )
-            ->will($this->onConsecutiveCalls($inputAmount, $rateAmount));
+            ->with($this->equalTo($sum), $this->equalTo($isoFrom))
+            ->willReturn($inputAmount);
 
         $inputAmount->expects($this->once())
             ->method('convert')
             ->with(
-                $this->equalTo($rateAmount),
-                $this->equalTo($precision)
+                $this->equalTo($rate),
+                $this->equalTo($isoTo)
             )
             ->willReturn($resultAmount);
 

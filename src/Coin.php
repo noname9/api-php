@@ -18,30 +18,36 @@ class Coin
     private $value;
 
     /**
-     * @var int|null
+     * @var int
      */
     private $precision;
 
     /**
-     * @param string $sum
-     * @param int|null $pow
-     * @param int|null $iso
+     * @var int
      */
-    public function __construct(string $sum, int $pow = null, int $iso = null)
+    private $iso;
+
+    /**
+     * @param string $sum
+     * @param int $iso
+     * @param int|null $pow
+     */
+    public function __construct(string $sum, int $iso, int $pow = null)
     {
+        $this->iso = $iso;
+        $this->precision = Currency::getPrecision($iso);
+
         $value = Decimal::fromString($sum);
 
-        $this->precision = $iso ? Currency::getPrecision($iso) : 0;
-
         if ($pow === null) {
-            $scale = max(Currency::getScale($sum), Currency::getMaxPrecision());
+            $scale = max(Currency::getScale($sum), Currency::MAX_PRECISION);
             $value = Decimal::fromString($sum, $scale);
         } else {
             $div = Decimal::fromInteger(10)->pow(Decimal::fromInteger($pow));
             $value = $value->div($div);
         }
 
-        $this->value = $value;
+        $this->value = $value->ceil($this->precision);
     }
 
     /**
@@ -67,6 +73,14 @@ class Coin
     }
 
     /**
+     * @return int
+     */
+    public function getIso(): int
+    {
+        return $this->iso;
+    }
+
+    /**
      * @return string
      */
     public function getPowed(): string
@@ -78,19 +92,17 @@ class Coin
     }
 
     /**
-     * @param Coin $rate
-     * @param int $precision
+     * @param Rate $rate
+     * @param int $iso
      * @return Coin
      */
-    public function convert(Coin $rate, int $precision): Coin
+    public function convert(Rate $rate, int $iso): Coin
     {
-        $this->precision = $precision;
+        $mul = $rate->getDecimal();
 
-        $mul = Decimal::fromString($rate->getValue());
+        $amount = (string)$this->value->mul($mul);
 
-        $this->value = $this->value->mul($mul);
-
-        return $this;
+        return new self($amount, $iso);
     }
 
     /**
@@ -101,8 +113,8 @@ class Coin
     {
         $mul = Decimal::fromInteger($percent)->div(Decimal::fromInteger(100));
 
-        $this->value = $this->value->add($this->value->mul($mul));
+        $amount = (string)$this->value->add($this->value->mul($mul));
 
-        return $this;
+        return new self($amount, $this->iso);
     }
 }

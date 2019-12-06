@@ -12,12 +12,12 @@ class CoinFactory
 {
     /**
      * @param string $sum
-     * @param int|null $iso
+     * @param int $iso
      * @param int|null $pow
      * @return Coin
      */
-    public function create(string $sum, int $iso = null, int $pow = null)
+    public function create(string $sum, int $iso, int $pow = null): Coin
     {
-        return new Coin($sum, $pow, $iso);
+        return new Coin($sum, $iso, $pow);
     }
 }

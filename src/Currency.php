@@ -156,14 +156,6 @@ class Currency
     }
 
     /**
-     * @return int
-     */
-    public static function getMaxPrecision(): int
-    {
-        return self::MAX_PRECISION;
-    }
-
-    /**
      * @param int $iso
      * @return string
      * @throws UnknownValueException

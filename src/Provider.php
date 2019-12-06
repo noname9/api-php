@@ -133,20 +133,17 @@ class Provider
             $rates,
             function ($carry, $item) use ($isoTo) {
                 if ($item->to->iso === $isoTo) {
-                    $carry = $this->coinFactory->create($item->rate, null, $item->pow);
+                    return new Rate($item->rate, $item->pow);
                 }
                 return $carry;
-            },
-            array()
+            }
         );
 
         if (empty($rate)) {
             throw new IncorrectRatesException("Can't get rates to convert from $isoFrom to $isoTo");
         }
 
-        $precision = Currency::getPrecision($isoTo);
-
-        return $input->convert($rate, $precision)->getValue();
+        return $input->convert($rate, $isoTo)->getValue();
     }
 
     /**
