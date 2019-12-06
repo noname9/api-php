@@ -13,11 +13,6 @@ use Litipk\BigNumbers\Decimal;
 class Coin
 {
     /**
-     * @var Currency
-     */
-    private $currency;
-
-    /**
      * @var Decimal
      */
     private $value;
@@ -28,21 +23,18 @@ class Coin
     private $precision;
 
     /**
-     * @param Currency $currency
      * @param string $sum
      * @param int|null $pow
      * @param int|null $iso
      */
-    public function __construct(Currency $currency, string $sum, int $pow = null, int $iso = null)
+    public function __construct(string $sum, int $pow = null, int $iso = null)
     {
-        $this->currency = $currency;
-
         $value = Decimal::fromString($sum);
 
-        $this->precision = $iso ? $this->currency->getPrecision($iso) : 0;
+        $this->precision = $iso ? Currency::getPrecision($iso) : 0;
 
         if ($pow === null) {
-            $scale = max($this->calcScale($sum), $this->currency->getMaxPrecision());
+            $scale = max(Currency::getScale($sum), Currency::getMaxPrecision());
             $value = Decimal::fromString($sum, $scale);
         } else {
             $div = Decimal::fromInteger(10)->pow(Decimal::fromInteger($pow));
@@ -112,16 +104,5 @@ class Coin
         $this->value = $this->value->add($this->value->mul($mul));
 
         return $this;
-    }
-
-    /**
-     * @param string $sum
-     * @return int
-     */
-    public function calcScale(string $sum): int
-    {
-        $parts = explode('.', $sum);
-
-        return empty($parts[1]) ? 0 : strlen($parts[1]);
     }
 }

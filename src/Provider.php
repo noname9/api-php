@@ -21,11 +21,6 @@ class Provider
     private $api;
 
     /**
-     * @var Currency
-     */
-    private $currency;
-
-    /**
      * @var CoinFactory
      */
     private $coinFactory;
@@ -35,7 +30,6 @@ class Provider
      * @param string $authSecret
      * @param bool|false $testing
      * @param Client|null $client
-     * @param Currency|null $currency
      * @param CoinFactory|null $coinFactory
      * @param ApiInterface|null $api
      */
@@ -44,12 +38,10 @@ class Provider
         string $authSecret,
         bool $testing = false,
         Client $client = null,
-        Currency $currency = null,
         CoinFactory $coinFactory = null,
         ApiInterface $api = null
     ) {
-        $this->currency = $currency ?? new Currency();
-        $this->coinFactory = $coinFactory ?? new CoinFactory($this->currency);
+        $this->coinFactory = $coinFactory ?? new CoinFactory();
 
         $request = ($client) ? new Request($client) : null;
 
@@ -126,8 +118,8 @@ class Provider
         string $currencyTo,
         array $rates = null
     ): string {
-        $isoFrom = $this->currency->getIso($currencyFrom);
-        $isoTo = $this->currency->getIso($currencyTo);
+        $isoFrom = Currency::getIso($currencyFrom);
+        $isoTo = Currency::getIso($currencyTo);
 
         $input = $this->coinFactory->create($sum, $isoFrom);
 
@@ -152,7 +144,7 @@ class Provider
             throw new IncorrectRatesException("Can't get rates to convert from $isoFrom to $isoTo");
         }
 
-        $precision = $this->currency->getPrecision($isoTo);
+        $precision = Currency::getPrecision($isoTo);
 
         return $input->convert($rate, $precision)->getValue();
     }
@@ -165,7 +157,7 @@ class Provider
      */
     public function addMarkup(string $sum, string $currency, int $percent): string
     {
-        $iso = $this->currency->getIso($currency);
+        $iso = Currency::getIso($currency);
 
         $amount = $this->coinFactory->create($sum, $iso);
 
@@ -189,7 +181,7 @@ class Provider
         string $trackingId = null,
         string $callbackUrl = null
     ) {
-        $iso = $this->currency->getIso($currency);
+        $iso = Currency::getIso($currency);
         $url = $this->api->getNewBillUrl($iso);
 
         $amount = $this->coinFactory->create($sum, $iso);

@@ -8,11 +8,6 @@ use PHPUnit\Framework\TestCase;
 
 class CurrencyTest extends TestCase
 {
-    /**
-     * @var Currency
-     */
-    private $currency;
-
     private $currencyIso;
     private $currencyAlpha;
     private $currencyName;
@@ -20,21 +15,15 @@ class CurrencyTest extends TestCase
 
     public function setUp()
     {
-        $this->currency = new Currency();
         $this->currencyIso = (int)getenv('CURRENCY_ISO');
         $this->currencyAlpha = getenv('CURRENCY_ALPHA');
         $this->currencyName = getenv('CURRENCY_NAME');
         $this->currencyPrecision = (int)getenv('CURRENCY_PRECISION');
     }
 
-    public function tearDown()
-    {
-        $this->currency = null;
-    }
-
     public function testGetAlpha()
     {
-        $this->assertSame($this->currencyAlpha, $this->currency->getAlpha($this->currencyIso));
+        $this->assertSame($this->currencyAlpha, Currency::getAlpha($this->currencyIso));
     }
 
     /**
@@ -42,12 +31,12 @@ class CurrencyTest extends TestCase
      */
     public function testGetAlphaException()
     {
-        $this->currency->getAlpha(9999);
+        Currency::getAlpha(9999);
     }
 
     public function testGetIso()
     {
-        $this->assertSame($this->currencyIso, $this->currency->getIso($this->currencyAlpha));
+        $this->assertSame($this->currencyIso, Currency::getIso($this->currencyAlpha));
     }
 
     /**
@@ -55,12 +44,12 @@ class CurrencyTest extends TestCase
      */
     public function testGetIsoException()
     {
-        $this->currency->getIso('test');
+        Currency::getIso('test');
     }
 
     public function testGetPrecision()
     {
-        $this->assertSame($this->currencyPrecision, $this->currency->getPrecision($this->currencyIso));
+        $this->assertSame($this->currencyPrecision, Currency::getPrecision($this->currencyIso));
     }
 
     /**
@@ -68,12 +57,12 @@ class CurrencyTest extends TestCase
      */
     public function testGetPrecisionException()
     {
-        $this->currency->getPrecision(9999);
+        Currency::getPrecision(9999);
     }
 
     public function testGetName()
     {
-        $this->assertSame($this->currencyName, $this->currency->getName($this->currencyIso));
+        $this->assertSame($this->currencyName, Currency::getName($this->currencyIso));
     }
 
     /**
@@ -81,6 +70,18 @@ class CurrencyTest extends TestCase
      */
     public function testGetNameException()
     {
-        $this->currency->getName(9999);
+        Currency::getName(9999);
+    }
+
+    public function testgetScale()
+    {
+        $scale = Currency::getScale('100.1');
+        $this->assertSame(1, $scale);
+
+        $scale = Currency::getScale('0.003');
+        $this->assertSame(3, $scale);
+
+        $scale = Currency::getScale('100');
+        $this->assertSame(0, $scale);
     }
 }

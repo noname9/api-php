@@ -106,12 +106,12 @@ class Currency
      * @return string
      * @throws UnknownValueException
      */
-    public function getAlpha(int $iso): string
+    public static function getAlpha(int $iso): string
     {
-        if (!array_key_exists($iso, Currency::$list)) {
+        if (!array_key_exists($iso, self::$list)) {
             throw new UnknownValueException($iso);
         }
-        return Currency::$list[$iso]['alpha'];
+        return self::$list[$iso]['alpha'];
     }
 
     /**
@@ -119,7 +119,7 @@ class Currency
      * @return int
      * @throws UnknownValueException
      */
-    public function getIso(string $alpha): int
+    public static function getIso(string $alpha): int
     {
         $alpha = strtoupper($alpha);
 
@@ -146,7 +146,7 @@ class Currency
      * @return int
      * @throws UnknownValueException
      */
-    public function getPrecision(int $iso): int
+    public static function getPrecision(int $iso): int
     {
         if (!array_key_exists($iso, self::$list)) {
             throw new UnknownValueException($iso);
@@ -158,7 +158,7 @@ class Currency
     /**
      * @return int
      */
-    public function getMaxPrecision(): int
+    public static function getMaxPrecision(): int
     {
         return self::MAX_PRECISION;
     }
@@ -168,12 +168,23 @@ class Currency
      * @return string
      * @throws UnknownValueException
      */
-    public function getName(int $iso): string
+    public static function getName(int $iso): string
     {
         if (!array_key_exists($iso, self::$list)) {
             throw new UnknownValueException($iso);
         }
 
         return self::$list[$iso]['name'];
+    }
+
+    /**
+     * @param string $sum
+     * @return int
+     */
+    public static function getScale(string $sum): int
+    {
+        $parts = explode('.', $sum);
+
+        return empty($parts[1]) ? 0 : strlen($parts[1]);
     }
 }

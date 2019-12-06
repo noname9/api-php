@@ -5,7 +5,6 @@ namespace B2Binpay\Tests;
 
 use B2Binpay\Coin;
 use B2Binpay\CoinFactory;
-use B2Binpay\Currency;
 use B2Binpay\Provider;
 use B2Binpay\ApiInterface;
 use PHPUnit\Framework\TestCase;
@@ -19,11 +18,6 @@ class ProviderTest extends TestCase
     protected $provider;
 
     /**
-     * @var Currency | MockObject
-     */
-    protected $currency;
-
-    /**
      * @var CoinFactory | MockObject
      */
     protected $coinFactory;
@@ -35,7 +29,6 @@ class ProviderTest extends TestCase
 
     public function setUp()
     {
-        $this->currency = $this->createMock(Currency::class);
         $this->coinFactory = $this->createMock(CoinFactory::class);
         $this->api = $this->createMock(ApiInterface::class);
 
@@ -44,7 +37,6 @@ class ProviderTest extends TestCase
             getenv('AUTH_SECRET'),
             true,
             null,
-            $this->currency,
             $this->coinFactory,
             $this->api
         );
@@ -53,7 +45,6 @@ class ProviderTest extends TestCase
     public function tearDown()
     {
         $this->provider = null;
-        $this->currency = null;
         $this->coinFactory = null;
         $this->api = null;
     }
@@ -138,9 +129,6 @@ class ProviderTest extends TestCase
 
     public function testConvertCurrencySame()
     {
-        $this->currency->method('getIso')
-            ->willReturn(1);
-
         $amountObj = $this->createMock(Coin::class);
 
         $this->coinFactory->method('create')
@@ -159,22 +147,16 @@ class ProviderTest extends TestCase
         $currencyFrom = 'USD';
         $currencyTo = 'XRP';
         $isoFrom = 840;
-        $isoTo = 1010;
         $rate = '264866406';
-        $precision = 8;
+        $precision = 6;
         $result = '1234';
 
-        $ratesStub = json_decode(
-            '{"data":[{
+        $ratesStub = json_decode('{"data":[{
                 "from":{"alpha":"USD","iso":840},
                 "to":{"alpha":"XRP","iso":1010},
                 "rate":"264866406",
-                "pow":8
-            }]}'
-        );
-
-        $this->currency->method('getIso')
-            ->will($this->onConsecutiveCalls($isoFrom, $isoTo));
+                "pow":6
+            }]}', false);
 
         $inputAmount = $this->createMock(Coin::class);
         $rateAmount = $this->createMock(Coin::class);
@@ -187,9 +169,6 @@ class ProviderTest extends TestCase
                 [$this->equalTo($rate), $this->isNull(), $this->equalTo($precision)]
             )
             ->will($this->onConsecutiveCalls($inputAmount, $rateAmount));
-
-        $this->currency->method('getPrecision')
-            ->willReturn($precision);
 
         $inputAmount->expects($this->once())
             ->method('convert')
@@ -211,9 +190,6 @@ class ProviderTest extends TestCase
      */
     public function testIncorrectRatesException()
     {
-        $this->currency->method('getIso')
-            ->will($this->onConsecutiveCalls(1, 2));
-
         $amountObj = $this->createMock(Coin::class);
 
         $this->coinFactory->method('create')
@@ -228,9 +204,6 @@ class ProviderTest extends TestCase
         $iso = 840;
         $percent = 10;
         $result = '9999';
-
-        $this->currency->method('getIso')
-            ->willReturn($iso);
 
         $amountObj = $this->createMock(Coin::class);
         $resultAmount = $this->createMock(Coin::class);
@@ -276,9 +249,6 @@ class ProviderTest extends TestCase
             'tracking_id' => $trackingId,
             'callback_url' => $callbackUrl
         ];
-
-        $this->currency->method('getIso')
-            ->willReturn($this->getCurrencyIso());
 
         $this->api->method('getNewBillUrl')
             ->willReturn($url);
@@ -352,7 +322,7 @@ class ProviderTest extends TestCase
     /**
      * @return string
      */
-    private function getAuth()
+    private function getAuth(): string
     {
         return getenv('AUTH');
     }
@@ -360,16 +330,8 @@ class ProviderTest extends TestCase
     /**
      * @return string
      */
-    private function getAuthBasic()
+    private function getAuthBasic(): string
     {
         return getenv('AUTH_BASIC');
-    }
-
-    /**
-     * @return string
-     */
-    private function getCurrencyIso()
-    {
-        return getenv('CURRENCY_ISO');
     }
 }
