@@ -133,19 +133,33 @@ class Coin
     }
 
     /**
-     * @param Coin $amount
+     * @param Coin $other
      * @return Coin
      */
-    public function add(Coin $amount): Coin
+    public function add(Coin $other): Coin
     {
+        if ($this->iso !== $other->getIso()) {
+            throw new NotEqualCurrencyException();
+        }
+
+        $result = (string)$this->value->add($other->getDecimal());
+
+        return new self($result, $this->iso);
     }
 
     /**
-     * @param Coin $amount
+     * @param Coin $other
      * @return Coin
      */
-    public function subtract(Coin $amount): Coin
+    public function subtract(Coin $other): Coin
     {
+        if ($this->iso !== $other->getIso()) {
+            throw new NotEqualCurrencyException();
+        }
+
+        $result = (string)$this->value->sub($other->getDecimal());
+
+        return new self($result, $this->iso);
     }
 
     /**

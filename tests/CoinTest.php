@@ -139,6 +139,17 @@ class CoinTest extends TestCase
 
     }
 
+    /**
+     * @expectedException \B2Binpay\Exception\NotEqualCurrencyException
+     */
+    public function testEqualsThrowsException()
+    {
+        $amount = new Coin('1', 1000);
+        $other = new Coin('2', 1010);
+
+        $amount->equals($other);
+    }
+
     public function greaterThanDataProvider(): array
     {
         return [
@@ -178,6 +189,17 @@ class CoinTest extends TestCase
         $this->assertEquals($expect, $result);
     }
 
+    /**
+     * @expectedException \B2Binpay\Exception\NotEqualCurrencyException
+     */
+    public function testGreaterThanThrowsException()
+    {
+        $amount = new Coin('1', 1000);
+        $other = new Coin('2', 1010);
+
+        $amount->greaterThan($other);
+    }
+
     public function lessThanDataProvider(): array
     {
         return [
@@ -215,6 +237,97 @@ class CoinTest extends TestCase
 
         $result = $amount->lessThan($other);
         $this->assertEquals($expect, $result);
+    }
+
+    /**
+     * @expectedException \B2Binpay\Exception\NotEqualCurrencyException
+     */
+    public function testLessThanThrowsException()
+    {
+        $amount = new Coin('1', 1000);
+        $other = new Coin('2', 1010);
+
+        $amount->lessThan($other);
+    }
+
+    public function addDataProvider(): array
+    {
+        return [
+            [
+                'amount' => ['0.0000002', 1000, null],
+                'other' => ['0.0000001', 1000, null],
+                'expect' => '0.0000003'
+            ]
+        ];
+    }
+
+    /**
+     * @dataProvider addDataProvider
+     * @param array $amount
+     * @param array $other
+     * @param string $expect
+     */
+    public function testAdd(array $amount, array $other, string $expect)
+    {
+        list($amountSum, $amountIso, $amountPow) = $amount;
+        list($otherSum, $otherIso, $otherPow) = $other;
+
+        $amount = new Coin($amountSum, $amountIso, $amountPow);
+        $other = new Coin($otherSum, $otherIso, $otherPow);
+
+        $result = $amount->add($other)->getValue();
+        $this->assertEquals($expect, $result);
+    }
+
+    /**
+     * @expectedException \B2Binpay\Exception\NotEqualCurrencyException
+     */
+    public function testAddThrowsException()
+    {
+        $amount = new Coin('1', 1000);
+        $other = new Coin('2', 1010);
+
+        $amount->add($other);
+    }
+
+    public function subtractDataProvider(): array
+    {
+        return [
+            [
+                'amount' => ['0.0000003', 1000, null],
+                'other' => ['0.0000002', 1000, null],
+                'expect' => '0.0000001'
+            ]
+        ];
+    }
+
+    /**
+     * @dataProvider subtractDataProvider
+     * @param array $amount
+     * @param array $other
+     * @param string $expect
+     */
+    public function testSubtract(array $amount, array $other, string $expect)
+    {
+        list($amountSum, $amountIso, $amountPow) = $amount;
+        list($otherSum, $otherIso, $otherPow) = $other;
+
+        $amount = new Coin($amountSum, $amountIso, $amountPow);
+        $other = new Coin($otherSum, $otherIso, $otherPow);
+
+        $result = $amount->subtract($other)->getValue();
+        $this->assertEquals($expect, $result);
+    }
+
+    /**
+     * @expectedException \B2Binpay\Exception\NotEqualCurrencyException
+     */
+    public function testSubtractThrowsException()
+    {
+        $amount = new Coin('1', 1000);
+        $other = new Coin('2', 1010);
+
+        $amount->subtract($other);
     }
 
     public function convertDataProvider(): array
