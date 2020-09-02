@@ -1,12 +1,12 @@
 {
-    "name": "b2binpay/api-php",
+    "name": "noname9/api-php",
     "description": "PHP client for B2BinPay",
     "type": "library",
     "license": "MIT",
     "require": {
         "litipk/php-bignumbers": "^0.8",
         "guzzlehttp/guzzle": "^6.3",
-        "vlucas/phpdotenv": "^2.5",
+        "vlucas/phpdotenv": "^4.0",
         "php": "^7",
         "ext-json": "*"
     },
