@@ -14,13 +14,13 @@ Accepting [Bitcoin](https://bitcoin.org/), [Bitcoin Cash](https://www.bitcoincas
 
 The easiest way to install the B2BinPay API client is to require it with [Composer](http://getcomposer.org/doc/00-intro.md) through command-line:
 ```
-    $ composer require b2binpay/api-php
+    $ composer require noname9/api-php
 ```
 or by editing `composer.json`:
 ```
     {
         "require": {
-            "b2binpay/api-php": "^1.0"
+            "noname9/api-php": "^1.0"
         }
     }
 ```
